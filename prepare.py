@@ -64,7 +64,7 @@ def get_box(df):
     ''' Gets boxplots of acquired continuous variables'''
     
     # List of columns
-    cols = ['bathrooms', 'bedrooms', 'tax_value', 'tax_rate', 'square_feet', 'age']
+    cols = ['bathrooms', 'bedrooms', 'tax_value', 'tax_rate', 'square_feet', 'age', 'log_error']
 
     plt.figure(figsize=(16, 3))
 

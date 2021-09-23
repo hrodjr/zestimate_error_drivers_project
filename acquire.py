@@ -6,7 +6,7 @@ def get_connection(db, user=env.user, host=env.host, password=env.password):
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
 #zillow db
-zillow_sql = "SELECT bathroomcnt, bedroomcnt, fips, yearbuilt, taxvaluedollarcnt, taxamount, calculatedfinishedsquarefeet\
+zillow_sql = "SELECT bathroomcnt, bedroomcnt, fips, yearbuilt, taxvaluedollarcnt, taxamount, calculatedfinishedsquarefeet, predictions_2017.logerror AS log_error\
                 FROM properties_2017\
                 LEFT JOIN predictions_2017 USING(parcelid)\
                 JOIN propertylandusetype USING(propertylandusetypeid)\
