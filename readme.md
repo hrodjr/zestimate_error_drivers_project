@@ -1,3 +1,3 @@
 # Zestimate Error Drivers Project
 
-1. Get a peak on project planning using <a href="https://miro.com/app/board/o9J_lwwlcbk=/">Kanban</a> on Miro. 
+1. Here is a link to my Trello board I used for project planning using <a href="https://trello.com/b/EMEzPn69/clusteringproject">Kanban</a> on Miro. 
