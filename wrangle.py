@@ -33,7 +33,7 @@ zillow_sql = "SELECT *\
 def get_zillow_data():
     return pd.read_sql(zillow_sql,get_connection('zillow'))
 
-def handle_missing_values(df, prop_required_column = .6, prop_required_row = .75):
+def handle_missing_values(df, prop_required_column = .5, prop_required_row = .70):
 #function that will drop rows or columns based on the percent of values that are missing:\
 #handle_missing_values(df, prop_required_column, prop_required_row
     threshold = int(round(prop_required_column*len(df.index),0))
@@ -68,35 +68,31 @@ def wrangle_zillow(df):
 
 #drop unnecessary columns
     dropcols = ['parcelid',
-         'calculatedbathnbr',
-         'finishedsquarefeet12',
-         'fullbathcnt',
-         'heatingorsystemtypeid',
-         'propertycountylandusecode',
-         'propertylandusetypeid',
-         'propertyzoningdesc',
-         'censustractandblock',
-         'propertylandusedesc',
-         'id']
+                'propertylandusetypeid', 
+                'fips',
+                'heatingorsystemtypeid', 
+                'id', 
+                'buildingqualitytypeid', 
+                'calculatedbathnbr',
+                'finishedsquarefeet12', 
+                'fullbathcnt', 
+                'propertycountylandusecode', 
+                'propertyzoningdesc', 
+                'rawcensustractandblock',
+                'regionidcity', 
+                'regionidcounty', 
+                'regionidzip', 
+                'roomcnt', 
+                'unitcnt', 
+                'structuretaxvaluedollarcnt', 
+                'assessmentyear',
+                'censustractandblock', 
+                'transactiondate', 
+                'heatingorsystemdesc', 
+                'propertylandusedesc', 
+                'landtaxvaluedollarcnt']
 
     df = remove_columns(df, dropcols)
-
-#replace nulls in unitcnt with 1
-    df.unitcnt.fillna(1, inplace = True)
-
-#assume that since this is Southern CA, null means 'None' for heating system
-    df.heatingorsystemdesc.fillna('None', inplace = True)
-
-#replace nulls with median values for select columns
-    df.lotsizesquarefeet.fillna(7313, inplace = True)
-    df.buildingqualitytypeid.fillna(6.0, inplace = True)
-
-#Columns to look for outliers
-    df = df[df.taxvaluedollarcnt < 5_000_000]
-    df = df[df.calculatedfinishedsquarefeet < 8000]
-
-#Just to be sure we caught all nulls, drop them here
-    df = df.dropna()
 
 #get the age of the home    
     df['age'] = date.today().year - df.yearbuilt
@@ -107,18 +103,25 @@ def wrangle_zillow(df):
 #calculate price per sqft
     df['price_per_sqft'] = (df['taxvaluedollarcnt'] / df['calculatedfinishedsquarefeet'])
 
-#drops the above calculations    
-    df = df.drop(columns=['yearbuilt', 'taxamount', 'buildingqualitytypeid', 'fips', 'rawcensustractandblock', 'regionidcity', 'regionidcounty',
-    'regionidzip', 'structuretaxvaluedollarcnt', 'assessmentyear', 'transactiondate', 'roomcnt', 'heatingorsystemdesc', 'unitcnt'])
+#drop calculated columns
+    df = df.drop(columns = ['yearbuilt', 'taxamount'])
 
-#renames columns    
-    df = df.rename(columns={"bedroomcnt": "bedrooms", "bathroomcnt": "bathrooms", "calculatedfinishedsquarefeet":"square_feet",
-                        'lotsizesquarefeet':'lot_size', 'landtaxvaluedollarcnt':'property_value', "taxvaluedollarcnt":"tax_value"})
+#fillna with means
+    df.calculatedfinishedsquarefeet.fillna(1784.94, inplace = True)
+    df.lotsizesquarefeet.fillna(29973.79, inplace = True)
+    df.taxvaluedollarcnt.fillna(490055.43, inplace = True)
+    df.age.fillna(52, inplace = True)
+    df.tax_rate.fillna(0.0132, inplace = True)
+    df.price_per_sqft.fillna(266.26, inplace = True)
 
-#convert dtypes
-    convert_dict_int = {'bathrooms': int, 'bedrooms': int, 'square_feet':int, 'lot_size':int, 'tax_value':int, 
-                    'property_value': int, 'age':int, 'price_per_sqft':int}
+#convert flosts to integers
+    convert_dict_int = {'bathroomcnt': int, 'bedroomcnt': int, 'calculatedfinishedsquarefeet':int, 'lotsizesquarefeet':int,
+                    'taxvaluedollarcnt':int, 'age': int, 'price_per_sqft':int}
     df = df.astype(convert_dict_int)
+
+#rename columns
+    df = df.rename(columns={'bathroomcnt':'bathrooms', 'bedroomcnt':'bedrooms', 'calculatedfinishedsquarefeet':'sqft',
+                            'lotsizesquarefeet':'lot_size', 'taxvaluedollarcnt':'tax_value'})
 
     return df
 
@@ -156,9 +159,13 @@ def get_hist(df):
     plt.show()
 
 #Gets box plots of acquired continuous variables (non-categorical - object)
-def get_box(df, cols):
+def get_box(df):
     ''' Gets boxplots of acquired continuous variables'''
 
+# List of columns
+    cols = ['bathrooms', 'bedrooms', 'square_feet', 'latitude', 'longitude', 'lot_size', 'tax_value', 'age', 
+            'tax_rate', 'price_per_sqft']
+    
     plt.figure(figsize=(16, 3))
 
     for i, col in enumerate(cols):
@@ -219,6 +226,6 @@ def train_validate_test_split(df):
     The function returns, in this order, train, validate and test dataframes. 
     '''
     
-    train_validate, test = train_test_split(df, test_size=0.2, random_state=123, stratify=df['logerror'])
-    train, validate = train_test_split(train_validate, test_size=0.3, random_state=123, stratify=train_validate['logerror'])
+    train_validate, test = train_test_split(df, test_size=0.2, random_state=123)
+    train, validate = train_test_split(train_validate, test_size=0.3, random_state=123)
     return train, validate, test
