@@ -31,7 +31,7 @@ def get_residuals(df, y):
 
 #creates a residual plot
 def plot_residual(df, x, y):
-    sns.residplot(x, y)
+    sns.residplot(x, y, color = 'orange')
     plt.show()
 
 #returns regression errors
