@@ -2,286 +2,59 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import classification_report
-from scipy import stats
 
-def explore_univariate(train, cat_vars, quant_vars):
-    for var in cat_vars:
-        explore_univariate_categorical(train, var)
-    for col in quant_vars:
-        p, descriptive_stats = explore_univariate_quant(train, col)
-        plt.show(p)
-        print(descriptive_stats)
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.cluster import KMeans
 
-def explore_bivariate(train, target, cat_vars, quant_vars):
-    for cat in cat_vars:
-        explore_bivariate_categorical(train, target, cat)
-    for quant in quant_vars:
-        explore_bivariate_quant(train, target, quant)
-
-def explore_multivariate(train, target, cat_vars, quant_vars):
-    plot_swarm_grid_with_color(train, target, cat_vars, quant_vars)
-    plt.show()
-    violin = plot_violin_grid_with_color(train, target, cat_vars, quant_vars)
-    plt.show()
-    pair = sns.pairplot(data=train, vars=quant_vars, hue=target)
-    plt.show()
-    plot_all_continuous_vars(train, target, quant_vars)
-    plt.show()    
-
-
-### Univariate
-
-def explore_univariate_categorical(train, cat_var):
-    '''
-    takes in a dataframe and a categorical variable and returns
-    a frequency table and barplot of the frequencies. 
-    '''
-    frequency_table = freq_table(train, cat_var)
-    plt.figure(figsize=(2,2))
-    sns.barplot(x=cat_var, y='Count', data=frequency_table, color='lightseagreen')
-    plt.title(cat_var)
-    plt.show()
-    print(frequency_table)
-
-def explore_univariate_quant(train, quant_var):
-    '''
-    takes in a dataframe and a quantitative variable and returns
-    descriptive stats table, histogram, and boxplot of the distributions. 
-    '''
-    descriptive_stats = train[quant_var].describe()
-    plt.figure(figsize=(8,2))
-
-    p = plt.subplot(1, 2, 1)
-    p = plt.hist(train[quant_var], color='lightseagreen')
-    p = plt.title(quant_var)
-
-    # second plot: box plot
-    p = plt.subplot(1, 2, 2)
-    p = plt.boxplot(train[quant_var])
-    p = plt.title(quant_var)
-    return p, descriptive_stats
-
-def freq_table(train, cat_var):
-    '''
-    for a given categorical variable, compute the frequency count and percent split
-    and return a dataframe of those values along with the different classes. 
-    '''
-    class_labels = list(train[cat_var].unique())
-
-    frequency_table = (
-        pd.DataFrame({cat_var: class_labels,
-                      'Count': train[cat_var].value_counts(normalize=False), 
-                      'Percent': round(train[cat_var].value_counts(normalize=True)*100,2)}
-                    )
-    )
-    return frequency_table
-
-
-#### Bivariate
-
-def explore_bivariate_categorical(train, target, cat_var):
-    '''
-    takes in categorical variable and binary target variable, 
-    returns a crosstab of frequencies
-    runs a chi-square test for the proportions
-    and creates a barplot, adding a horizontal line of the overall rate of the target. 
-    '''
-    print(cat_var, "\n_____________________\n")
-    ct = pd.crosstab(train[cat_var], train[target], margins=True)
-    chi2_summary, observed, expected = run_chi2(train, cat_var, target)
-    p = plot_cat_by_target(train, target, cat_var)
-
-    print(chi2_summary)
-    print("\nobserved:\n", ct)
-    print("\nexpected:\n", expected)
-    plt.show(p)
-    print("\n_____________________\n")
-
-def explore_bivariate_quant(train, target, quant_var):
-    '''
-    descriptive stats by each target class. 
-    compare means across 2 target groups 
-    boxenplot of target x quant
-    swarmplot of target x quant
-    '''
-    print(quant_var, "\n____________________\n")
-    descriptive_stats = train.groupby(target)[quant_var].describe()
-    average = train[quant_var].mean()
-    mann_whitney = compare_means(train, target, quant_var)
-    plt.figure(figsize=(4,4))
-    boxen = plot_boxen(train, target, quant_var)
-    swarm = plot_swarm(train, target, quant_var)
-    plt.show()
-    print(descriptive_stats, "\n")
-    print("\nMann-Whitney Test:\n", mann_whitney)
-    print("\n____________________\n")
-
-## Bivariate Categorical
-
-def run_chi2(train, cat_var, target):
-    observed = pd.crosstab(train[cat_var], train[target])
-    chi2, p, degf, expected = stats.chi2_contingency(observed)
-    chi2_summary = pd.DataFrame({'chi2': [chi2], 'p-value': [p], 
-                                 'degrees of freedom': [degf]})
-    expected = pd.DataFrame(expected)
-    return chi2_summary, observed, expected
-
-def plot_cat_by_target(train, target, cat_var):
-    p = plt.figure(figsize=(2,2))
-    p = sns.barplot(cat_var, target, data=train, alpha=.8, color='lightseagreen')
-    overall_rate = train[target].mean()
-    p = plt.axhline(overall_rate, ls='--', color='gray')
-    return p
-
-
-## Bivariate Quant
-
-def plot_swarm(train, target, quant_var):
-    average = train[quant_var].mean()
-    p = sns.swarmplot(data=train, x=target, y=quant_var, color='lightgray')
-    p = plt.title(quant_var)
-    p = plt.axhline(average, ls='--', color='black')
-    return p
-
-def plot_boxen(train, target, quant_var):
-    average = train[quant_var].mean()
-    p = sns.boxenplot(data=train, x=target, y=quant_var, color='lightseagreen')
-    p = plt.title(quant_var)
-    p = plt.axhline(average, ls='--', color='black')
-    return p
-
-# alt_hyp = ‘two-sided’, ‘less’, ‘greater’
-
-def compare_means(train, target, quant_var, alt_hyp='two-sided'):
-    x = train[train[target]==0][quant_var]
-    y = train[train[target]==1][quant_var]
-    return stats.mannwhitneyu(x, y, use_continuity=True, alternative=alt_hyp)
-
-
-### Multivariate
-
-def plot_all_continuous_vars(train, target, quant_vars):
-    '''
-    Melt the dataset to "long-form" representation
-    boxenplot of measurement x value with color representing the target variable. 
-    '''
-    my_vars = [item for sublist in [quant_vars, [target]] for item in sublist]
-    sns.set(style="whitegrid", palette="muted")
-    melt = train[my_vars].melt(id_vars=target, var_name="measurement")
-    plt.figure(figsize=(8,6))
-    p = sns.boxenplot(x="measurement", y="value", hue=target, data=melt)
-    p.set(yscale="log", xlabel='')    
-    plt.show()
-
-def plot_violin_grid_with_color(train, target, cat_vars, quant_vars):
-    cols = len(cat_vars)
-    for quant in quant_vars:
-        _, ax = plt.subplots(nrows=1, ncols=cols, figsize=(16, 4), sharey=True)
-        for i, cat in enumerate(cat_vars):
-            sns.violinplot(x=cat, y=quant, data=train, split=True, 
-                           ax=ax[i], hue=target, palette="Set2")
-            ax[i].set_xlabel('')
-            ax[i].set_ylabel(quant)
-            ax[i].set_title(cat)
+#plots train variable distributions
+def variable_distributions(train):
+    for col in train.columns:
+        plt.figure(figsize=(4,2))
+        plt.hist(train[col])
+        plt.title(col)
         plt.show()
 
-def plot_swarm_grid_with_color(train, target, cat_vars, quant_vars):
-    cols = len(cat_vars)
-    for quant in quant_vars:
-        _, ax = plt.subplots(nrows=1, ncols=cols, figsize=(16, 4), sharey=True)
-        for i, cat in enumerate(cat_vars):
-            sns.swarmplot(x=cat, y=quant, data=train, ax=ax[i], hue=target, palette="Set2")
-            ax[i].set_xlabel('')
-            ax[i].set_ylabel(quant)
-            ax[i].set_title(cat)
-        plt.show()
-
-#prediction, accuracy and class report evaluation function used for the above functions
-def get_metrics_bin(clf, X, y):
-    '''
-    get_metrics_bin will take in a sklearn classifier model, an X and a y variable and utilize
-    the model to make a prediction and then gather accuracy, class report evaluations
-    Credit to @madeleine-capper
-    return:  a classification report as a pandas DataFrame
-    '''
-    y_pred = clf.predict(X)
-    accuracy = clf.score(X, y)
-    conf = confusion_matrix(y, y_pred)
-    class_report = pd.DataFrame(classification_report(y, y_pred, output_dict=True)).T
-    tpr = conf[1][1] / conf[1].sum()
-    fpr = conf[0][1] / conf[0].sum()
-    tnr = conf[0][0] / conf[0].sum()
-    fnr = conf[1][0] / conf[1].sum()
-    print(f'''
-    The accuracy for our model is {accuracy:.4}
-    The True Positive Rate is {tpr:.3}, The False Positive Rate is {fpr:.3},
-    The True Negative Rate is {tnr:.3}, and the False Negative Rate is {fnr:.3}
-    ''')
-    return class_report     
-
-def exp_bivariate_categorical(target, cat_vars, train):
-    """
-    Takes in a target and plots it against categorial variables. Outputs boxplots and barplots and gives the mean of the target
-    by each categorical variable.
-    """
-    for var in cat_vars:
-        print_var_tar(var, target)
-
-        sns.boxplot(x=var, y=target, data=train)
-        plt.show()
-
-        print()
-
-        sns.barplot(x=var, y=target, data=train)
-        plt.show()
-        
-        print("-------------------------------")
-        print(f"Mean {target} by {var}:  ")
-        print(train.groupby(var)[target].mean())
-        print()
-
-def exp_bivariate_continuous(target, cont_vars, train):
-    """
-    Takes in a target and plots it against continuous variables. Outputs a relplot and calculates the corrleation value between
-    the target and each continuous variable.
-    """
-    for var in cont_vars:
-        print_var_tar(var, target)
-
-        sns.relplot(x=var, y=target, data=train)
-        plt.show()
-        corr, p = stats.pearsonr(train[var], train[target])
-        
-        print("-------------------------------")
-        print(f"Correlation between {var} and {target}:  {corr}")
-        print(f"P value:  {p}")
-        print()
-
-def exp_multivariate(cont_vars, cat_vars, target, train):
-    for cont_var in cont_vars:
-        print_cont_tar(cont_var, target)
-        
-        for cat_var in cat_vars:
-            sns.relplot(x=cont_var, y=target, hue=cat_var, data=train)
-            plt.title(f"By {cat_var}")
-            plt.show()
-            print()
-
-def print_var_tar(var, target):
-        print(f"{var} vs {target}")
-
-def print_cont_tar(cont_var, target):
-        print(f"{cont_var} vs {target}")
-        
-def plot_against_target(df, target, var_list, figsize = (8,5), hue = None):
+#plots variables
+def plot_against_target(train, figsize = (8,5), hue = None):   
     '''
     Takes in dataframe, target and varialbe list, and plots against target. 
     '''
+#set target
+    target = ['logerror']
+#set variables
+    var_list = ['bathrooms', 
+                'bedrooms', 
+                'sqft', 
+                'latitude', 
+                'longitude', 
+                'lot_size', 
+                'tax_value', 
+                'age', 
+                'tax_rate', 
+                'price_per_sqft', 
+                'county_code']
+
     for var in var_list:
         plt.figure(figsize = (figsize))
-        sns.regplot(data = df, x = var, y = target, color = 'orange', line_kws={'color': 'green'})
+        sns.regplot(data = train, x = var, y = target, color = 'orange', line_kws={'color': 'green'})
         plt.xlabel(var)
         plt.ylabel('Log Error')
         plt.show()
+
+def pairplot_distribution (train):
+#columns
+    cols = ['age', 'latitude', 'longitude', 'logerror']
+
+    sns.pairplot(data = [cols], corner=True)
+    plt.suptitle('Amount of error is to see with Logerror', fontsize = 15)
+    plt.show()
+
+def inertia ():
+    with plt.style.context('seaborn-whitegrid'):
+        plt.figure(figsize=(9, 6))
+        pd.Series({k: KMeans(k).fit(X).inertia_ for k in range(2, 12)}).plot(marker='x')
+        plt.xticks(range(2, 12))
+        plt.xlabel('k')
+        plt.ylabel('inertia')
+        plt.title('Change in inertia as k increases')
