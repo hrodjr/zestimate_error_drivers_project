@@ -154,6 +154,25 @@ def model_test(X_test, y_test):
     y_test['logerror_pred_lm2'] = lm2.predict(X_test_degree2)
     rmse_test = mean_squared_error(y_test.logerror, y_test.logerror_pred_lm2)**(1/2)
     print("RMSE for Polynomial Model, degrees=2\nTest: ", rmse_test)
+    
+def linear_regression_test(X_test, y_test):
+    X_test = pd.DataFrame(X_test)
+    y_test = pd.DataFrame(y_test)
+    lm = LinearRegression(normalize=True)
+    lm.fit(X_test, y_test['logerror'])
+    y_test['logerror_pred_lm'] = lm.predict(X_test)
+    rmse_test = mean_squared_error(y_test.logerror, y_test.logerror_pred_lm)**(1/2)
+    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_test)
+
+def lassolars_test(X_test, y_test):
+    X_test = pd.DataFrame(X_test)
+    y_test = pd.DataFrame(y_test)
+    lars = LassoLars(alpha=1.0)
+    lars.fit(X_test, y_test.logerror)
+    y_test['logerror_pred_lars'] = lars.predict(X_test)
+    rmse_test = mean_squared_error(y_test.logerror, y_test.logerror_pred_lars)**(1/2)
+    print("RMSE for Lasso + Lars\nTraining/In-Sample: ", rmse_test)
+
 
 def plot_test_residuals():
     plt.figure(figsize=(16,8))
