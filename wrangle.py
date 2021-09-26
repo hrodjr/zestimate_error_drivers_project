@@ -42,6 +42,16 @@ def handle_missing_values(df, prop_required_column = .5, prop_required_row = .70
     df.dropna(axis=0, thresh=threshold, inplace=True)
     return df
 
+def summarize():
+    print(df.shape)
+    print(f'___________________________)
+    print(df.info())
+    print(f'___________________________)      
+    print(df.isnull().sum())
+    print(f'___________________________)      
+    print(df.describe.().T)
+    
+
 def remove_columns(df, cols_to_remove):
 #remove columns not needed
     df = df.drop(columns=cols_to_remove)
