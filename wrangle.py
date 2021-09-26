@@ -115,12 +115,12 @@ def wrangle_zillow(df):
 
 #convert flosts to integers
     convert_dict_int = {'bathroomcnt': int, 'bedroomcnt': int, 'calculatedfinishedsquarefeet':int, 'lotsizesquarefeet':int,
-                    'taxvaluedollarcnt':int, 'age': int, 'price_per_sqft':int}
+                    'taxvaluedollarcnt':int, 'age': int, 'price_per_sqft':int, 'fips':int}
     df = df.astype(convert_dict_int)
 
 #rename columns
     df = df.rename(columns={'bathroomcnt':'bathrooms', 'bedroomcnt':'bedrooms', 'calculatedfinishedsquarefeet':'sqft',
-                            'lotsizesquarefeet':'lot_size', 'taxvaluedollarcnt':'tax_value', 'fips':'counties'})
+                            'lotsizesquarefeet':'lot_size', 'taxvaluedollarcnt':'tax_value', 'fips':'county_code'})
 #adds an absolute logerror column to the df
     df = absolute_logerror(df)
 
