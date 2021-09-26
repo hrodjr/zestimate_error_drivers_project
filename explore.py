@@ -274,3 +274,14 @@ def print_var_tar(var, target):
 
 def print_cont_tar(cont_var, target):
         print(f"{cont_var} vs {target}")
+        
+def plot_against_target(df, target, var_list, figsize = (8,5), hue = None):
+    '''
+    Takes in dataframe, target and varialbe list, and plots against target. 
+    '''
+    for var in var_list:
+        plt.figure(figsize = (figsize))
+        sns.regplot(data = df, x = var, y = target, color = 'orange', line_kws={'color': 'green'})
+        plt.xlabel(var)
+        plt.ylabel('Log Error')
+        plt.show()

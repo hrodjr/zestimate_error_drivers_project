@@ -68,8 +68,7 @@ def wrangle_zillow(df):
 
 #drop unnecessary columns
     dropcols = ['parcelid',
-                'propertylandusetypeid', 
-                'fips',
+                'propertylandusetypeid',
                 'heatingorsystemtypeid', 
                 'id', 
                 'buildingqualitytypeid', 
@@ -121,7 +120,9 @@ def wrangle_zillow(df):
 
 #rename columns
     df = df.rename(columns={'bathroomcnt':'bathrooms', 'bedroomcnt':'bedrooms', 'calculatedfinishedsquarefeet':'sqft',
-                            'lotsizesquarefeet':'lot_size', 'taxvaluedollarcnt':'tax_value'})
+                            'lotsizesquarefeet':'lot_size', 'taxvaluedollarcnt':'tax_value', 'fips':'counties'})
+#adds an absolute logerror column to the df
+    df = absolute_logerror(df)
 
     return df
 
@@ -163,7 +164,7 @@ def get_box(df):
     ''' Gets boxplots of acquired continuous variables'''
 
 # List of columns
-    cols = ['bathrooms', 'bedrooms', 'square_feet', 'latitude', 'longitude', 'lot_size', 'tax_value', 'age', 
+    cols = ['bathrooms', 'bedrooms', 'sqft', 'latitude', 'longitude', 'lot_size', 'tax_value', 'age', 
             'tax_rate', 'price_per_sqft']
     
     plt.figure(figsize=(16, 3))
@@ -229,3 +230,11 @@ def train_validate_test_split(df):
     train_validate, test = train_test_split(df, test_size=0.2, random_state=123)
     train, validate = train_test_split(train_validate, test_size=0.3, random_state=123)
     return train, validate, test
+
+def absolute_logerror(df):
+    '''
+    This function takes in the dataframe and returns the df with new column abs_logerror
+    '''
+    df['abs_logerror'] = df['logerror'].abs()
+    
+    return df
