@@ -76,4 +76,20 @@ My methodology follow is the data pipeline; plan, acquire, prepare, explore, mod
 ##### Test Model
 - Test model did not perform as well as I hope going over by .100th of a point with an RMSE of 0.175 using sqft and logerror.
 # Data Dictionary
+| Value          | Description                                                           | DataType |
+|----------------|-----------------------------------------------------------------------|----------|
+| bathrooms      | bathroom count.                                                       | int64    |
+| bedrooms       | bedroom count.                                                        | int64    |
+| sqft           | square feet of home.                                                  | int64    |
+| county_code    | code identifying the county the home is in.                           | int64    |
+| latitude       | maps latitude                                                         | float64  |
+| longitude      | maps longitude                                                        | float64  |
+| lot_size       | size of the lot the home sits on.                                     | int64    |
+| tax_value      | value of the home.                                                    | int64    |
+| logerror       | Zestimate error rate.                                                 | float64  |
+| county         | county name based on county code.                                     | object   |
+| age            | age of the home calculated from today's date and year built.          | int64    |
+| tax_rate       | tax rate paid on the property calculated by tax amount and tax value. | float64  |
+| price_per_sqft | price per square foot calculated by sqft and tax value.               | int64    |
+| abs_logerror   | absolute value of log error                                           | float64  |
 
