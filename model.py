@@ -11,23 +11,23 @@ def model_baseline(y_train, y_validate, target):
     y_train = pd.DataFrame(y_train)
     y_validate = pd.DataFrame(y_validate)
 
-#1. Predict tax_value_pred_mean
+#1. Predict logerror_pred_mean
     logerror_pred_mean = y_train[target].mean()
     y_train['logerror_pred_mean'] = logerror_pred_mean
     y_validate['logerror_pred_mean'] = logerror_pred_mean
 
-#2. compute G3_pred_median
+#2. compute logerror_pred_median
     logerror_pred_median = y_train[target].median()
     y_train['logerror_pred_median'] = logerror_pred_median
     y_validate['logerror_pred_median'] = logerror_pred_median
 
-#3. RMSE of G3_pred_mean
+#3. RMSE of logerror_pred_mean
     rmse_train = mean_squared_error(y_train.logerror, y_train.logerror_pred_mean)**(1/2)
     rmse_validate = mean_squared_error(y_validate.logerror, y_validate.logerror_pred_mean)**(1/2)
     print("RMSE using Mean\nTrain/In-Sample: ", round(rmse_train, 2), 
       "\nValidate/Out-of-Sample: ", round(rmse_validate, 2))
 
-#4. RMSE of tax_value_pred_median
+#4. RMSE of logerror_pred_median
     rmse_train = mean_squared_error(y_train.logerror, y_train.logerror_pred_median)**(1/2)
     rmse_validate = mean_squared_error(y_validate.logerror, y_validate.logerror_pred_median)**(1/2)
     print("RMSE using Median\nTrain/In-Sample: ", round(rmse_train, 2), 

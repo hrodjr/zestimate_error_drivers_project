@@ -38,7 +38,7 @@ def pairplot_distribution (train):
     plt.suptitle('Amount of error is to see with Logerror', fontsize = 15)
     plt.show()
 
-def inertia (X):
+def inertia(X):
     with plt.style.context('seaborn-whitegrid'):
         plt.figure(figsize=(9, 6))
         pd.Series({k: KMeans(k).fit(X).inertia_ for k in range(2, 12)}).plot(marker='x')

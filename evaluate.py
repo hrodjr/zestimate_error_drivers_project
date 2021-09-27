@@ -19,7 +19,7 @@ from math import sqrt
 #gets the baseline
 def get_baseline(df, x, y):
     df['yhat_baseline'] = y.mean()
-    model = LinearRegression().fit(x, y)
+    model = LassoLars().fit(x, y)
     df['yhat'] = model.predict(x)
     return df
 
@@ -69,7 +69,7 @@ def better_than_baseline(regression_errors = True, baseline_mean_errors = True):
         print('The model is not better then the baseline.')
 
 def rfe(X_train,y_train,k):
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
     scaler.fit(X_train)
     X_train_scaled = scaler.transform(X_train)
     rfe = RFE(estimator=LinearRegression(), n_features_to_select=k)
@@ -77,7 +77,7 @@ def rfe(X_train,y_train,k):
     return X_train.columns[rfe.get_support()]
 
 def select_kbest(X_train,y_train,k):
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
     scaler.fit(X_train)
     X_train_scaled = scaler.transform(X_train)
     kbest = SelectKBest(f_regression, k=k)
@@ -86,7 +86,7 @@ def select_kbest(X_train,y_train,k):
     return X_train.columns[kbest.get_support()]
 
 def scale_it(X_train, X_validate, X_test):
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
 # Note that we only call .fit with the training data,
 # but we use .transform to apply the scaling to all the data splits.
     scaler.fit(X_train)
