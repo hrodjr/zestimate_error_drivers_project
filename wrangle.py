@@ -130,6 +130,9 @@ def wrangle_zillow(df):
 #rename columns
     df = df.rename(columns={'bathroomcnt':'bathrooms', 'bedroomcnt':'bedrooms', 'calculatedfinishedsquarefeet':'sqft',
                             'lotsizesquarefeet':'lot_size', 'taxvaluedollarcnt':'tax_value', 'fips':'county_code'})
+#converts long/lat into usable location plots
+    df['latitude'] = df.latitude*.000001
+    df['longitude'] = df.longitude*.000001
 #adds an absolute logerror column to the df
     df = absolute_logerror(df)
 
