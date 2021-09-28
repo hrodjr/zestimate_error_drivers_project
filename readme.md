@@ -51,9 +51,9 @@ My methodology follow is the data pipeline; plan, acquire, prepare, explore, mod
 - LassoLars
 - Tpolynomial Regression
 ## Hypothesis
-- Is a higher log error dependent on homes over 50 years old? (Cluster - 2) - Rejected the null, these are dependent of each other.
-- Is a higher log error dependent on homes less 1000 sqft? (Cluster - 6) - Rejected the null, these are dependent of each other.
-- Is a higher log error dependent on homes who's ppsqft is less 200? (Cluster - 7) - Failed to reject the null, they are independent.
+- Is a higher log error dependent on homes less than 50 years old? (Cluster - 2) - Rejected the null, these are dependent of each other.
+- Is a higher log error dependent on homes less than 1000 sqft? (Cluster - 6) - Rejected the null, these are dependent of each other.
+- Is a higher log error dependent on homes who's ppsqft is less than 200? (Cluster - 7) - Failed to reject the null, they are independent.
 - Is a higher log error dependent on homes with a smaller lot size? (Cluster - 8) - Failed to reject the null, they are independent.
 - Is a higher log error dependent on less expensive homes? (Cluster - 9) - Rejected the null, these are dependent of each other.
 ## Key findings and takeaways
@@ -63,7 +63,7 @@ My methodology follow is the data pipeline; plan, acquire, prepare, explore, mod
 - Homes are in three different counties with the majority of homes in 6040.
 - Majority of homes are < 75 years old.
 ##### Stats Testing
-- Homes older than 50 years old have a higher log error rate.
+- Homes less than 50 years old have a higher log error rate.
 - Homes less than 1000sqft have a higher log error rate.
 - Homes less than 250,000 have a higher log error rate.
 ##### Feature engineering
@@ -74,7 +74,7 @@ My methodology follow is the data pipeline; plan, acquire, prepare, explore, mod
 - Train RMSE on the Liner Regression model preformed better then the other two models.
 - With an RMSE of 0.1657 I chose to test on the liners regression model.
 ##### Test Model
-- Test model did not perform as well as I hope going over by .100th of a point with an RMSE of 0.175 using sqft and logerror.
+- Test model did not perform as well as I hope going over by 100th of a point with an RMSE of 0.174 using sqft and logerror.
 #### Download
 1. A downloadable copy of this project can be found <ahref="git@github.com:hrodjr/zillow_clustering_project_download.git">here</a>.
 2. In order to run the file you will need your personal env.py.
