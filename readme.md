@@ -75,6 +75,9 @@ My methodology follow is the data pipeline; plan, acquire, prepare, explore, mod
 - With an RMSE of 0.1657 I chose to test on the liners regression model.
 ##### Test Model
 - Test model did not perform as well as I hope going over by .100th of a point with an RMSE of 0.175 using sqft and logerror.
+#### Download
+1. A downloadable copy of this project can be found <ahref="git@github.com:hrodjr/zillow_clustering_project_download.git">here</a>.
+2. In order to run the file you will need your personal env.py.
 # Data Dictionary
 | Value          | Description                                                           | DataType |
 |----------------|-----------------------------------------------------------------------|----------|
